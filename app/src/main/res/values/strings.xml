@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MelShelf</string>
+    <string name="color">Color</string>
+    <string name="connect">Connect</string>
+    <string name="ip_address">IP Address</string>
+    <string name="lights_off">Lights Off</string>
+    <string name="lights_on">Lights On</string>
+    <string name="load">Load</string>
+    <string name="main_title">Indian Rock Bookshelf</string>
+    <string name="off">Off</string>
+    <string name="save">Save</string>
+    <string name="title_activity_new_color">NewColorActivity</string>
+</resources>
