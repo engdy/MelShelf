@@ -10,4 +10,5 @@
     <string name="off">Off</string>
     <string name="save">Save</string>
     <string name="title_activity_new_color">NewColorActivity</string>
+    <string name="name">New color name</string>
 </resources>
