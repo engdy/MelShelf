@@ -1,10 +1,15 @@
 package net.engdy.melshelf
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -68,88 +73,13 @@ class ColorListActivity : ComponentActivity() {
 
 @Composable
 fun RGBColorScreen(viewModel: RGBColorViewModel) {
-    val context = LocalContext.current
     val colors by viewModel.allColors.observeAsState(initial = emptyList())
-    var name by remember { mutableStateOf("") }
-    var red by remember { mutableStateOf("") }
-    var green by remember { mutableStateOf("") }
-    var blue by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        TextField(
-            value = name,
-            onValueChange = { name = it },
-            label = { Text("Name") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        TextField(
-            value = red,
-            onValueChange = { red = it },
-            label = { Text("Red (0-255)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        TextField(
-            value = green,
-            onValueChange = { green = it },
-            label = { Text("Green (0-255)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        TextField(
-            value = blue,
-            onValueChange = { blue = it },
-            label = { Text("Blue (0-255)") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Button(
-            onClick = {
-                if (name.isNotBlank() && red.isNotBlank() && green.isNotBlank() && blue.isNotBlank()) {
-                    try {
-                        val redValue = red.toInt()
-                        val greenValue = green.toInt()
-                        val blueValue = blue.toInt()
-                        if (redValue in 0..255 && greenValue in 0..255 && blueValue in 0..255) {
-                            val newColor = RGBColor(
-                                name = name,
-                                red = redValue,
-                                green = greenValue,
-                                blue = blueValue
-                            )
-                            viewModel.insert(newColor)
-                            name = ""
-                            red = ""
-                            green = ""
-                            blue = ""
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "RGB values must be between 0 and 255",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    } catch (e: NumberFormatException) {
-                        Toast.makeText(
-                            context,
-                            "Invalid RGB values",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Please fill in all fields",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            },
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
-        ) {
-            Text("Add Color")
-        }
-
         LazyColumn(modifier = Modifier.padding(top = 16.dp)) {
             items(colors) { color ->
                 ColorItem(color = color, viewModel = viewModel)
@@ -160,9 +90,21 @@ fun RGBColorScreen(viewModel: RGBColorViewModel) {
 
 @Composable
 fun ColorItem(color: RGBColor, viewModel: RGBColorViewModel) {
-    val context = LocalContext.current
+    val activity = LocalActivity.current
     Card(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clickable{
+            Log.d("Log", "Clicked ${color.name}")
+
+            val data = Intent()
+            data.putExtra("red", color.red)
+            data.putExtra("green", color.green)
+            data.putExtra("blue", color.blue)
+
+            activity?.setResult(Activity.RESULT_OK, data)
+            activity?.finish()
+
+
+        }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -177,7 +119,7 @@ fun ColorItem(color: RGBColor, viewModel: RGBColorViewModel) {
             }
             Button(onClick = {
                 viewModel.delete(color)
-                Toast.makeText(context, "Color deleted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(activity, "Color deleted", Toast.LENGTH_SHORT).show()
             }) {
                 Text("Delete")
             }
