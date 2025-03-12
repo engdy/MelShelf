@@ -1,13 +1,16 @@
 package net.engdy.melshelf
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,6 +52,20 @@ import java.net.URL
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: RGBViewModel
+
+    val intentLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+
+            if (result.resultCode == Activity.RESULT_OK) {
+                val red = result.data?.getIntExtra("red", 127)
+                val green = result.data?.getIntExtra("green", 127)
+                val blue = result.data?.getIntExtra("blue", 127)
+                val prefs: SharedPreferences = getPreferences(Context.MODE_PRIVATE)
+                val lastAddress: String = prefs.getString(LAST_IP_ADDRESS, "")!!
+                sendChange(lastAddress, red?:127, green?:127, blue?:127)
+            }
+        }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -292,8 +309,7 @@ fun ShelfConnected(
             )
             Button(
                 onClick = {
-                    val intent = Intent(activity, ColorListActivity::class.java)
-                    activity.startActivity(intent)
+                    activity.intentLauncher.launch(Intent(activity, ColorListActivity::class.java))
                 }
             ) {
                 Text(
